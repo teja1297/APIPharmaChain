@@ -424,6 +424,8 @@ router.get('/InitialSetup', async (req, res) => {
  *      required: true
  *      content:
  *        application/json:
+ *          schema:
+ *              type: object
  *    responses:
  *      200:
  *        description: Login is successful
@@ -435,7 +437,7 @@ router.get('/InitialSetup', async (req, res) => {
  *        description: Method Not Allowed
  */
 router.post('/AddUser', async (req, res) => {
-    console.log(req.body);
+    const params = req.body;
     const web3js = web3;
     web3js.eth.getTransactionCount(myAddress).then(function(v){
         console.log("Count: "+v);
@@ -444,10 +446,10 @@ router.post('/AddUser', async (req, res) => {
         //creating raw tranaction
         var rawTransaction = {
             "from":myAddress,
-             "gasPrice":web3js.utils.toHex(35* 1e9),
+             "gasPrice":web3js.utils.toHex(25* 1e9),
              "gasLimit":web3js.utils.toHex(4481130),
              "to":contractAddress,"value":"0x0",
-             "data":contract.methods.setUser("Admin","Satya",1234,"Satya","Satya","Satya@gmail.com","Manufacturer").encodeABI(),
+             "data":contract.methods.setUser(params.CurrentUser,params.Name,params.Phone,params.UserName,params.Password,params.Email,params.Role).encodeABI(),
              "nonce":web3js.utils.toHex(count)}
         console.log(rawTransaction);
         //creating tranaction via ethereumjs-tx
@@ -467,41 +469,16 @@ router.post('/AddUser', async (req, res) => {
  * @swagger
  * /api/AddDrug:
  *  post:
- *    summary: adding drug Details
- *    parameters:
- *     - name: CurrentUser
- *       description: CurrentUser
- *       in: formData
- *       required: true
- *       type: string  
- *     - name: Name
- *       description: Name
- *       in: formData
- *       required: true
- *       type: string 
- *     - name: ContactNo
- *       description: ContactNo
- *       in: formData
- *       required: true
- *       type: int32   
- *     - name: UserName
- *       description: UserName
- *       in: formData
- *       required: true
- *       type: string  
- *     - name: Password
- *       description: Password
- *       in: formData
- *       required: true
- *       type: string 
- *     - name: Role
- *       description: Role
- *       in: formData
- *       required: true
- *       type: string  
- *  
+ *    summary: adding drug Details  
  *    tags:
  *      - Setters
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *              type: object
+ * 
  *    responses:
  *      200:
  *        description: Login is successful
@@ -513,6 +490,7 @@ router.post('/AddUser', async (req, res) => {
  *        description: Method Not Allowed
  */
  router.post('/AddDrug', async (req, res) => {
+    const params = req.body;
    const web3js = web3;
    web3js.eth.getTransactionCount(myAddress).then(function(v){
     
@@ -522,10 +500,10 @@ router.post('/AddUser', async (req, res) => {
        //creating raw tranaction
        var rawTransaction = {
            "from":myAddress,
-            "gasPrice":web3js.utils.toHex(35* 1e9),
+            "gasPrice":web3js.utils.toHex(25* 1e9),
             "gasLimit":web3js.utils.toHex(4481130),
             "to":contractAddress,"value":"0x0",
-            "data":contract.methods.addDrugDetails("Satya",3,3,"Strepsils","Manufacturer",1648814012,1748814012,5,10,"0x0000000000000000000000000000000000000000").encodeABI(),
+            "data":contract.methods.addDrugDetails(params.CurrentUser,params.DrugID,params.BatchID,params.DrugName,params.Location,params.Mfg,params.Exp,params.CurrentTemp,params.IdealTemp,params.SerailNumber).encodeABI(),
             "nonce":web3js.utils.toHex(count)}
        console.log(rawTransaction);
        //creating tranaction via ethereumjs-tx
@@ -546,7 +524,12 @@ router.post('/AddUser', async (req, res) => {
  * /api/UpdateDrug:
  *  post:
  *    summary: adding drug Details
- *  
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *              type: object
  *    tags:
  *      - Setters
  *    responses:
@@ -560,6 +543,7 @@ router.post('/AddUser', async (req, res) => {
  *        description: Method Not Allowed
  */
  router.post('/UpdateDrug', async (req, res) => {
+     const params = req.body;
    const web3js = web3;
    web3js.eth.getTransactionCount(myAddress).then(function(v){
        console.log("Count: "+v);
@@ -568,10 +552,10 @@ router.post('/AddUser', async (req, res) => {
        //creating raw tranaction
        var rawTransaction = {
            "from":myAddress,
-            "gasPrice":web3js.utils.toHex(35* 1e9),
+            "gasPrice":web3js.utils.toHex(25* 1e9),
             "gasLimit":web3js.utils.toHex(4481130),
             "to":contractAddress,"value":"0x0",
-            "data":contract.methods.addDrugDetails("Satya",2,2,"saridon","Manufacturer",1648814012,1748814012,5,10,"0x1d42EbE493E7AA9bda76873F78a53b10a7ec677a").encodeABI(),
+            "data":contract.methods.addDrugDetails(params.CurrentUser,params.DrugID,params.BatchID,params.DrugName,params.Location,params.Mfg,params.Exp,params.CurrentTemp,params.IdealTemp,params.SerailNumber).encodeABI(),
             "nonce":web3js.utils.toHex(count)}
        console.log(rawTransaction);
        //creating tranaction via ethereumjs-tx
@@ -594,7 +578,12 @@ router.post('/AddUser', async (req, res) => {
  * /api/ManufacturerShipping:
  *  post:
  *    summary: adding drug Details
- *  
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *              type: object
  *    tags:
  *      - Setters
  *    responses:
@@ -608,6 +597,7 @@ router.post('/AddUser', async (req, res) => {
  *        description: Method Not Allowed
  */
  router.post('/ManufacturerShipping', async (req, res) => {
+    const params = req.body;
    const web3js = web3;
    web3js.eth.getTransactionCount(myAddress).then(function(v){
        console.log("Count: "+v);
@@ -616,10 +606,10 @@ router.post('/AddUser', async (req, res) => {
        //creating raw tranaction
        var rawTransaction = {
            "from":myAddress,
-            "gasPrice":web3js.utils.toHex(35* 1e9),
+            "gasPrice":web3js.utils.toHex(25* 1e9),
             "gasLimit":web3js.utils.toHex(4481130),
             "to":contractAddress,"value":"0x0",
-            "data":contract.methods.moveFromManufacturer("0x1d42EbE493E7AA9bda76873F78a53b10a7ec677a","Satya","Distributor","Prateek",10).encodeABI(),
+            "data":contract.methods.moveFromManufacturer(params.SerailNumber,params.CurrentUser,params.Location,params.DistributorUserName,params.ExportTemp).encodeABI(),
             "nonce":web3js.utils.toHex(count)}
        console.log(rawTransaction);
        //creating tranaction via ethereumjs-tx
@@ -645,7 +635,12 @@ router.post('/AddUser', async (req, res) => {
  * /api/DistributorReceiving:
  *  post:
  *    summary: adding drug Details
- *  
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *              type: object
  *    tags:
  *      - Setters
  *    responses:
@@ -659,6 +654,7 @@ router.post('/AddUser', async (req, res) => {
  *        description: Method Not Allowed
  */
  router.post('/DistributorReceiving', async (req, res) => {
+    const params = req.body;
    const web3js = web3;
    web3js.eth.getTransactionCount(myAddress).then(function(v){
        console.log("Count: "+v);
@@ -667,10 +663,10 @@ router.post('/AddUser', async (req, res) => {
        //creating raw tranaction
        var rawTransaction = {
            "from":myAddress,
-            "gasPrice":web3js.utils.toHex(35* 1e9),
+            "gasPrice":web3js.utils.toHex(25* 1e9),
             "gasLimit":web3js.utils.toHex(4481130),
             "to":contractAddress,"value":"0x0",
-            "data":contract.methods.distributorReceving("0x1d42EbE493E7AA9bda76873F78a53b10a7ec677a","Prateek","Distributor",7).encodeABI(),
+            "data":contract.methods.distributorReceving(params.SerailNumber,params.CurrentUser,params.Location,params.ImportTemp).encodeABI(),
             "nonce":web3js.utils.toHex(count)}
        console.log(rawTransaction);
        //creating tranaction via ethereumjs-tx
@@ -690,7 +686,12 @@ router.post('/AddUser', async (req, res) => {
  * /api/DistributorShipping:
  *  post:
  *    summary: adding drug Details
- *  
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *              type: object
  *    tags:
  *      - Setters
  *    responses:
@@ -704,6 +705,7 @@ router.post('/AddUser', async (req, res) => {
  *        description: Method Not Allowed
  */
  router.post('/DistributorShipping', async (req, res) => {
+    const params = req.body;
    const web3js = web3;
    web3js.eth.getTransactionCount(myAddress).then(function(v){
        console.log("Count: "+v);
@@ -712,10 +714,10 @@ router.post('/AddUser', async (req, res) => {
        //creating raw tranaction
        var rawTransaction = {
            "from":myAddress,
-            "gasPrice":web3js.utils.toHex(35* 1e9),
+            "gasPrice":web3js.utils.toHex(25* 1e9),
             "gasLimit":web3js.utils.toHex(4481130),
             "to":contractAddress,"value":"0x0",
-            "data":contract.methods.moveFromDistributor("Prateek","0x1d42EbE493E7AA9bda76873F78a53b10a7ec677a",7,"Teja").encodeABI(),
+            "data":contract.methods.moveFromDistributor(params.CurrentUser,params.SerailNumber,params.ExportTemp,params.WholesalerUserName).encodeABI(),
             "nonce":web3js.utils.toHex(count)}
        console.log(rawTransaction);
        //creating tranaction via ethereumjs-tx
@@ -735,7 +737,12 @@ router.post('/AddUser', async (req, res) => {
  * /api/WholesalerReceiving:
  *  post:
  *    summary: adding drug Details
- *  
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *              type: object
  *    tags:
  *      - Setters
  *    responses:
@@ -749,6 +756,7 @@ router.post('/AddUser', async (req, res) => {
  *        description: Method Not Allowed
  */
  router.post('/WholesalerReceiving', async (req, res) => {
+    const params = req.body;
    const web3js = web3;
    web3js.eth.getTransactionCount(myAddress).then(function(v){
        console.log("Count: "+v);
@@ -757,10 +765,10 @@ router.post('/AddUser', async (req, res) => {
        //creating raw tranaction
        var rawTransaction = {
            "from":myAddress,
-            "gasPrice":web3js.utils.toHex(35* 1e9),
+            "gasPrice":web3js.utils.toHex(25* 1e9),
             "gasLimit":web3js.utils.toHex(4481130),
             "to":contractAddress,"value":"0x0",
-            "data":contract.methods.wholesalerReceving("0x1d42EbE493E7AA9bda76873F78a53b10a7ec677a","Teja","Wholesaler",7).encodeABI(),
+            "data":contract.methods.wholesalerReceving(params.SerailNumber,params.CurrentUser,params.Location,params.ImportTemp).encodeABI(),
             "nonce":web3js.utils.toHex(count)}
        console.log(rawTransaction);
        //creating tranaction via ethereumjs-tx
@@ -781,7 +789,12 @@ router.post('/AddUser', async (req, res) => {
  * /api/WholesalerrShipping:
  *  post:
  *    summary: adding drug Details
- *  
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *              type: object
  *    tags:
  *      - Setters
  *    responses:
@@ -795,6 +808,7 @@ router.post('/AddUser', async (req, res) => {
  *        description: Method Not Allowed
  */
  router.post('/WholesalerrShipping', async (req, res) => {
+    const params = req.body;
    const web3js = web3;
    web3js.eth.getTransactionCount(myAddress).then(function(v){
        console.log("Count: "+v);
@@ -803,10 +817,10 @@ router.post('/AddUser', async (req, res) => {
        //creating raw tranaction
        var rawTransaction = {
            "from":myAddress,
-            "gasPrice":web3js.utils.toHex(35* 1e9),
+            "gasPrice":web3js.utils.toHex(25* 1e9),
             "gasLimit":web3js.utils.toHex(4481130),
             "to":contractAddress,"value":"0x0",
-            "data":contract.methods.moveFromWholeSaler("Teja","0x1d42EbE493E7AA9bda76873F78a53b10a7ec677a",7,"Sanket").encodeABI(),
+            "data":contract.methods.moveFromWholeSaler(params.CurrentUser,params.SerailNumber,params.ExportTemp,params.PharmacyUserName).encodeABI(),
             "nonce":web3js.utils.toHex(count)}
        console.log(rawTransaction);
        //creating tranaction via ethereumjs-tx
@@ -825,7 +839,12 @@ router.post('/AddUser', async (req, res) => {
  * /api/PharmacyReceiving:
  *  post:
  *    summary: adding drug Details
- *  
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *              type: object
  *    tags:
  *      - Setters
  *    responses:
@@ -839,6 +858,7 @@ router.post('/AddUser', async (req, res) => {
  *        description: Method Not Allowed
  */
  router.post('/PharmacyReceiving', async (req, res) => {
+    const params = req.body;
    const web3js = web3;
    web3js.eth.getTransactionCount(myAddress).then(function(v){
        console.log("Count: "+v);
@@ -847,10 +867,10 @@ router.post('/AddUser', async (req, res) => {
        //creating raw tranaction
        var rawTransaction = {
            "from":myAddress,
-            "gasPrice":web3js.utils.toHex(35* 1e9),
+            "gasPrice":web3js.utils.toHex(25* 1e9),
             "gasLimit":web3js.utils.toHex(4481130),
             "to":contractAddress,"value":"0x0",
-            "data":contract.methods.importToPharmacy("0x1d42EbE493E7AA9bda76873F78a53b10a7ec677a","Sanket","Pharmacy",7).encodeABI(),
+            "data":contract.methods.importToPharmacy(params.SerailNumber,params.CurrentUser,params.Location,params.ImportTemp).encodeABI(),
             "nonce":web3js.utils.toHex(count)}
        console.log(rawTransaction);
        //creating tranaction via ethereumjs-tx
@@ -871,7 +891,12 @@ router.post('/AddUser', async (req, res) => {
  * /api/ChangeAdmin:
  *  post:
  *    summary: adding drug Details
- *  
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *              type: object
  *    tags:
  *      - Setters
  *    responses:
@@ -885,6 +910,7 @@ router.post('/AddUser', async (req, res) => {
  *        description: Method Not Allowed
  */
  router.post('/ChangeAdmin', async (req, res) => {
+    const params = req.body;
    const web3js = web3;
    web3js.eth.getTransactionCount(myAddress).then(function(v){
        console.log("Count: "+v);
@@ -893,10 +919,10 @@ router.post('/AddUser', async (req, res) => {
        //creating raw tranaction
        var rawTransaction = {
            "from":myAddress,
-            "gasPrice":web3js.utils.toHex(35* 1e9),
+            "gasPrice":web3js.utils.toHex(25* 1e9),
             "gasLimit":web3js.utils.toHex(4481130),
             "to":contractAddress,"value":"0x0",
-            "data":contract.methods.changeAdmin("0x1d42EbE493E7AA9bda76873F78a53b10a7ec677a","Satya","Admin").encodeABI(),
+            "data":contract.methods.changeAdmin(params.WalletAddress,params.newAdmin,params.Admin).encodeABI(),
             "nonce":web3js.utils.toHex(count)}
        console.log(rawTransaction);
        //creating tranaction via ethereumjs-tx

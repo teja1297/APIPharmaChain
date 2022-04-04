@@ -129,7 +129,7 @@ router.get('/InitialSetup', async (req, res) => {
  * @swagger
  * /api/testConnection:
  *  get:
- *    summary: testing the connection by hitting a simple dummy method
+ *    summary: Admin Wallet Address
  *    tags:
  *      - getters
  *      
@@ -426,6 +426,17 @@ router.get('/InitialSetup', async (req, res) => {
  *        application/json:
  *          schema:
  *              type: object
+ *              example:
+ *                  {
+ *                  "CurrentUser":"Admin",
+ *                  "Name":"Teja",
+ *                  Phone:1234,
+ *                  "UserName":"Teja",
+ *                  "Password":"Teja",
+ *                  "Email":"Teja@mindtree.com",
+ *                  "Role":"Manufacturer"
+ *                  }
+ * 
  *    responses:
  *      200:
  *        description: Login is successful
@@ -478,6 +489,20 @@ router.post('/AddUser', async (req, res) => {
  *        application/json:
  *          schema:
  *              type: object
+ *              example:
+ *                  {
+ *                  "CurrentUser":"Sunu",
+ *                  "DrugID":1,
+ *                  "BatchID":2,
+ *                  "DrugName":"Paracetmol",
+ *                  "Location":"Manufacturer",
+ *                  "Mfg":1649097200,
+ *                  "Exp":1649097200,
+ *                  "CurrentTemp":5,
+ *                  "IdealTemp":10,
+ *                  "SerialNumber":"0x0000000000000000000000000000000000000000"
+ *                  }
+ * 
  * 
  *    responses:
  *      200:
@@ -523,13 +548,26 @@ router.post('/AddUser', async (req, res) => {
  * @swagger
  * /api/UpdateDrug:
  *  post:
- *    summary: adding drug Details
+ *    summary: Updating drug Details
  *    requestBody:
  *      required: true
  *      content:
  *        application/json:
  *          schema:
  *              type: object
+ *              example:
+ *                  {
+ *                  "CurrentUser":"Sunu",
+ *                  "DrugID":1,
+ *                  "BatchID":2,
+ *                  "DrugName":"Paracetmol",
+ *                  "Location":"Manufacturer",
+ *                  "Mfg":1649097200,
+ *                  "Exp":1649097200,
+ *                  "CurrentTemp":5,
+ *                  "IdealTemp":10,
+ *                  "SerialNumber":"0x06C4251B8dd763Ed3bC2A3156311bBE7A7f7A2Fa"
+ *                  }
  *    tags:
  *      - Setters
  *    responses:
@@ -577,13 +615,21 @@ router.post('/AddUser', async (req, res) => {
  * @swagger
  * /api/ManufacturerShipping:
  *  post:
- *    summary: adding drug Details
+ *    summary: Shipping from Manufacturer
  *    requestBody:
  *      required: true
  *      content:
  *        application/json:
  *          schema:
  *              type: object
+ *              example:
+ *                  {
+ *                  "CurrentUser":"Admin",
+ *                  "SerialNumber":"0x06C4251B8dd763Ed3bC2A3156311bBE7A7f7A2Fa",
+ *                  "Location":"Manufacturer",
+ *                  "DistributorUserName":"Teja",
+ *                  "ExportTemp":7
+ *                  }
  *    tags:
  *      - Setters
  *    responses:
@@ -634,13 +680,20 @@ router.post('/AddUser', async (req, res) => {
  * @swagger
  * /api/DistributorReceiving:
  *  post:
- *    summary: adding drug Details
+ *    summary: Distributor Receving from Manufacturer
  *    requestBody:
  *      required: true
  *      content:
  *        application/json:
  *          schema:
  *              type: object
+ *              example:
+ *                  {
+ *                  "CurrentUser":"Admin",
+ *                  "SerialNumber":"0x06C4251B8dd763Ed3bC2A3156311bBE7A7f7A2Fa",
+ *                  "Location":"Manufacturer",
+ *                  "ImportTemp":7
+ *                  }
  *    tags:
  *      - Setters
  *    responses:
@@ -685,13 +738,20 @@ router.post('/AddUser', async (req, res) => {
  * @swagger
  * /api/DistributorShipping:
  *  post:
- *    summary: adding drug Details
+ *    summary: Shipping from Distributor
  *    requestBody:
  *      required: true
  *      content:
  *        application/json:
  *          schema:
  *              type: object
+ *              example:
+ *                  {
+ *                  "CurrentUser":"Admin",
+ *                  "SerialNumber":"0x06C4251B8dd763Ed3bC2A3156311bBE7A7f7A2Fa",
+ *                  "WholesalerUserName":"Teja",
+ *                  "ExportTemp":7
+ *                  }
  *    tags:
  *      - Setters
  *    responses:
@@ -736,13 +796,20 @@ router.post('/AddUser', async (req, res) => {
  * @swagger
  * /api/WholesalerReceiving:
  *  post:
- *    summary: adding drug Details
+ *    summary: Receving Drug From Distributor
  *    requestBody:
  *      required: true
  *      content:
  *        application/json:
  *          schema:
  *              type: object
+ *              example:
+ *                  {
+ *                  "CurrentUser":"Admin",
+ *                  "SerialNumber":"0x06C4251B8dd763Ed3bC2A3156311bBE7A7f7A2Fa",
+ *                  "Location":"Manufacturer",
+ *                  "ImportTemp":7
+ *                  }
  *    tags:
  *      - Setters
  *    responses:
@@ -788,13 +855,20 @@ router.post('/AddUser', async (req, res) => {
  * @swagger
  * /api/WholesalerrShipping:
  *  post:
- *    summary: adding drug Details
+ *    summary: Shipping Drug from Wholesaler
  *    requestBody:
  *      required: true
  *      content:
  *        application/json:
  *          schema:
  *              type: object
+ *              example:
+ *                  {
+ *                  "CurrentUser":"Admin",
+ *                  "SerialNumber":"0x06C4251B8dd763Ed3bC2A3156311bBE7A7f7A2Fa",
+ *                  "PharmacyUserName":"Teja",
+ *                  "ExportTemp":7
+ *                  }
  *    tags:
  *      - Setters
  *    responses:
@@ -838,13 +912,20 @@ router.post('/AddUser', async (req, res) => {
  * @swagger
  * /api/PharmacyReceiving:
  *  post:
- *    summary: adding drug Details
+ *    summary: Importing Drug to Pharmacy
  *    requestBody:
  *      required: true
  *      content:
  *        application/json:
  *          schema:
  *              type: object
+ *              example:
+ *                  {
+ *                  "CurrentUser":"Admin",
+ *                  "SerialNumber":"0x06C4251B8dd763Ed3bC2A3156311bBE7A7f7A2Fa",
+ *                  "Location":"Pharamcy",
+ *                  "ImportTemp":7
+ *                  }
  *    tags:
  *      - Setters
  *    responses:
@@ -890,13 +971,19 @@ router.post('/AddUser', async (req, res) => {
  * @swagger
  * /api/ChangeAdmin:
  *  post:
- *    summary: adding drug Details
+ *    summary: Change Admin
  *    requestBody:
  *      required: true
  *      content:
  *        application/json:
  *          schema:
  *              type: object
+ *              example:
+ *                  {
+ *                  "Admin":"Admin",
+ *                  "WalletAddress":"0x06C4251B8dd763Ed3bC2A3156311bBE7A7f7A2Fa",
+ *                  "newAdmin":"Teja"
+ *                  }
  *    tags:
  *      - Setters
  *    responses:

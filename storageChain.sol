@@ -5,7 +5,7 @@ contract SupplyChainStorage{
 
 address public AdminAddress;
     constructor(string memory _Name,
-                     uint32 _ContactNo,
+                     uint64 _ContactNo,
                      string memory _UserName,
                      string memory _UserPassword,
                      string memory _Email
@@ -14,31 +14,31 @@ address public AdminAddress;
        UserDetail.Name =_Name;
         UserDetail.ContactNo = _ContactNo;
         UserDetail.UserName = _UserName;
-         UserDetail.Password = _UserPassword;
+         
         UserDetail.Email = _Email;
-        UserDetail.Role ="Admin";
+       // UserDetail.Role ="Admin";
         UserDetail.IsActive = true;
         /*store data into mapping*/
         BatchUserDetails[_UserName] = UserDetail;
         userRole[_UserName] = "Admin";
         UserNameList.push(_UserName);
+        passwords[_UserName]= _UserPassword;
         isAutherised[_UserName]= true;
                     }
     address[] public DrugKeyList;
     string[] public UserNameList;
-  mapping(string => string)  userRole;
-  mapping (address => string) nextOwner;
+  mapping(string => string)  public userRole;
+  mapping (address => string)  nextOwner;
   mapping(string => bool) isAutherised;
-
+    mapping(string => string) passwords;
 
     struct User{
         string Name;
-        uint32 ContactNo;
+        uint64 ContactNo;
         bool IsActive;
         string UserName;
-        string Password;
         string Email;
-        string Role;
+       // string Role;
      }
 
 
@@ -52,7 +52,7 @@ address public AdminAddress;
         uint MfgTimeStamp;
         uint ExpTimeStamp;
         int8  CurrentTemperature;
-        int8 IdealTemperature;
+        int8 MaxTemperature;
         string Status;
         bool IsBad;
     }
@@ -97,13 +97,13 @@ address public AdminAddress;
     }
 
 
-     mapping(address => Drug)  BatchDrugDetails;
-    mapping(address => Manufacturer)  BatchManufactureringDetails;
-    mapping(address =>distributor)  BatchdistributorDetails;
-    mapping(address =>Wholesaler)  BatchWholesalerDetails;
-    mapping(address =>Pharmacy)  BatchPharmacyDetails;
+    mapping(address => Drug) public BatchDrugDetails;
+    mapping(address => Manufacturer) public BatchManufactureringDetails;
+    mapping(address =>distributor) public  BatchdistributorDetails;
+    mapping(address =>Wholesaler) public BatchWholesalerDetails;
+    mapping(address =>Pharmacy) public BatchPharmacyDetails;
 
-        mapping(string =>User)  BatchUserDetails;
+    mapping(string =>User) public BatchUserDetails;
 
         Drug DrugDetails;
         User UserDetail;
@@ -113,9 +113,9 @@ address public AdminAddress;
         Pharmacy PharmacyDetails;
 
 
-//   function getDrugKeyList() public view returns(address[] memory){
-//         return DrugKeyList;
-//     }
+  function getDrugKeyList() public view returns(address[] memory){
+         return DrugKeyList;
+    }
 
 
     // function getUserNameList() public view returns(string[] memory){
@@ -127,29 +127,29 @@ address public AdminAddress;
 
     function setUser(string memory ThisUser,
                     string memory _Name,
-                     uint32 _ContactNo,
+                     uint64 _ContactNo,
                      string memory _UserName,
                      string memory _UserPassword,
                      string memory _Email,
-                     string memory _Role, 
-                     bool _isActive) public onlyAdmin(ThisUser) returns(bool){
+                     string memory _Role) public onlyAdmin(ThisUser) returns(bool){
                          require(!isAutherised[_UserName],"username already taken");
         /*store data into struct*/
         UserDetail.Name =_Name;
         UserDetail.ContactNo = _ContactNo;
         UserDetail.UserName = _UserName;
-         UserDetail.Password = _UserPassword;
         UserDetail.Email = _Email;
-        UserDetail.Role =_Role;
-        UserDetail.IsActive = _isActive;
+    //  UserDetail.Role =_Role;
+        UserDetail.IsActive = true;
         /*store data into mapping*/
         BatchUserDetails[_UserName] = UserDetail;
         userRole[_UserName] = _Role;
         UserNameList.push(_UserName);
+         passwords[_UserName]= _UserPassword;
         isAutherised[_UserName]= true;
 
         return true;
     }  
+
 
 
 
@@ -162,12 +162,16 @@ address public AdminAddress;
         uint _MfgTimeStamp,
         uint _ExpTimeStamp,
         int8  _CurrentTemperature,
-        int8 _IdealTemperature
+        int8 _MaxTemperature,
+        address _SerialNumber
      ) public onlyManufacturer(ThisUser) returns(address){
-         require(_CurrentTemperature<=_IdealTemperature);
+         if(_SerialNumber == address(0)){
+         require(_CurrentTemperature<=_MaxTemperature);
          uint tmpData = uint(keccak256(abi.encodePacked(_MfgTimeStamp, block.timestamp )));
-        address SerialNumber = address(uint160(tmpData));
-         DrugKeyList.push(SerialNumber);//newly added
+         _SerialNumber = address(uint160(tmpData));
+         DrugKeyList.push(_SerialNumber);
+         }
+
         DrugDetails.DrugID = _DrugID;
         DrugDetails.BatchID = _BatchID;
         DrugDetails.DrugName = _DrugName;
@@ -176,12 +180,12 @@ address public AdminAddress;
         DrugDetails.MfgTimeStamp = _MfgTimeStamp;
         DrugDetails.ExpTimeStamp = _ExpTimeStamp;
         DrugDetails.CurrentTemperature = _CurrentTemperature;
-        DrugDetails.IdealTemperature = _IdealTemperature;
+        DrugDetails.MaxTemperature = _MaxTemperature;
         DrugDetails.Status = "Manufactured";
         DrugDetails.NextOwner = "";
-        nextOwner[SerialNumber] = "";
-        BatchDrugDetails[SerialNumber] = DrugDetails;
-        return SerialNumber;
+        nextOwner[_SerialNumber] = "";
+        BatchDrugDetails[_SerialNumber] = DrugDetails;
+        return _SerialNumber;
     }
 
 
@@ -195,12 +199,9 @@ address public AdminAddress;
                              int8  _ExportingTemparature
                              )public  returns(bool){   
                 require(keccak256(abi.encodePacked(userRole[_ManufacturerUserName])) == keccak256(abi.encodePacked("Manufacturer")));
+                  DrugDetails = BatchDrugDetails[_SerialNumber];  
                 bool good =  isBad(_SerialNumber,_ExportingTemparature);
-                require(good,"Cannot ship the Drug, This Drug Either expired or exceeded Temparature");
-          
-                DrugDetails = BatchDrugDetails[_SerialNumber]; 
-                         
-                     DrugDetails.Status = "Shipped";   
+                if(good){ DrugDetails.Status = "Shipped";   
                      DrugDetails.NextOwner = _DistributorUserName;    
          ManufacturerDetails.ManufacturerUserName = _ManufacturerUserName;
          ManufacturerDetails.Location = _Location;
@@ -211,24 +212,27 @@ address public AdminAddress;
          BatchManufactureringDetails[_SerialNumber] = ManufacturerDetails;
          BatchDrugDetails[_SerialNumber] = DrugDetails;
           nextOwner[_SerialNumber] = _DistributorUserName;
-         return true;
+         return true;}
+         else{return false;}
+          
+                   
+                    
         }
 
 
 
 
  
-
-
         function distributorReceving(
                                      address _SerialNumber,
                                      string memory _DistributorUserName,
                                      string memory _Location,
                                      int8 _ImportingTemparature) 
                                      public isValidPerformer(_SerialNumber,"Distributor",_DistributorUserName,true) returns(bool){
+              DrugDetails = BatchDrugDetails[_SerialNumber];                            
             bool good =  isBad(_SerialNumber,_ImportingTemparature);
-           require(good,"This Drug Either expired or exceeded Temparature, please store it in your wharehouse for return");
-            DrugDetails = BatchDrugDetails[_SerialNumber];
+           if(good){}
+           
             DistributorDetails.DistributorUserName = _DistributorUserName;
             DistributorDetails.Location = _Location;
             DistributorDetails.ImportingTemparature = _ImportingTemparature;
@@ -253,10 +257,11 @@ address public AdminAddress;
                                 address _SerialNumber,
                                 int8 _ExportingTemparature, 
                                  string memory _ExporterUserName) public isValidPerformer(_SerialNumber,"Distributor",ThisUser,false) returns(bool){
+              DrugDetails = BatchDrugDetails[_SerialNumber];  
            bool good =  isBad(_SerialNumber,_ExportingTemparature);
-        require(good,"Cannot ship the Drug, This Drug Either expired or exceeded Temparature");
+        if(good){}
 
-               DrugDetails = BatchDrugDetails[_SerialNumber];      
+              
                      DrugDetails.Status = "Shipped";  
                      DrugDetails.NextOwner = _ExporterUserName;
             DistributorDetails.ExportingTemparature = _ExportingTemparature;
@@ -277,10 +282,10 @@ address public AdminAddress;
                                      string memory _Location,
                                      int8 _ImportingTemparature) 
                                      public isValidPerformer(_SerialNumber,"Wholesaler",_WholeSalerUserName,true) returns(bool){
+           DrugDetails = BatchDrugDetails[_SerialNumber];
             bool good =  isBad(_SerialNumber,_ImportingTemparature);
-           require(good,"This Drug Either expired or exceeded Temparature, please store it in your wharehouse for return");
-            DrugDetails = BatchDrugDetails[_SerialNumber];
-            WholesalerDetails.WholeSalerUserName = _WholeSalerUserName;
+           if(good){
+WholesalerDetails.WholeSalerUserName = _WholeSalerUserName;
             WholesalerDetails.Location = _Location;
             WholesalerDetails.ImportingTemparature = _ImportingTemparature;
             WholesalerDetails.ImportingDateTime = block.timestamp;
@@ -292,7 +297,13 @@ address public AdminAddress;
             DrugDetails.Currentlocation = _Location;
              DrugDetails.Status = "Received"; 
              BatchDrugDetails[_SerialNumber] = DrugDetails;
-             return true;    
+             return true;   
+           }
+           else{
+               return false;
+           }
+            
+             
         }
 
 
@@ -300,10 +311,10 @@ address public AdminAddress;
                                 address _SerialNumber,
                                 int8 _ExportingTemparature, 
                                  string memory _PharmacyUserName) public isValidPerformer(_SerialNumber,"Wholesaler",ThisUser,false)  returns(bool){
+         
+          DrugDetails = BatchDrugDetails[_SerialNumber]; 
            bool good =  isBad(_SerialNumber,_ExportingTemparature);
-        require(good,"Cannot ship the Drug, This Drug Either expired or exceeded Temparature");
-
-               DrugDetails = BatchDrugDetails[_SerialNumber];      
+        if(good){ 
                      DrugDetails.Status = "In Transit from Distributor";  
                      DrugDetails.NextOwner = _PharmacyUserName;
                       DrugDetails.Status = "Shipped";
@@ -314,6 +325,10 @@ address public AdminAddress;
              nextOwner[_SerialNumber] = _PharmacyUserName; 
              BatchDrugDetails[_SerialNumber] = DrugDetails;
             return true; 
+            }
+            else{return false;}
+
+                  
         }
 
 
@@ -321,10 +336,9 @@ function importToPharmacy(address _SerialNumber,
         string memory _PharmacyUserName,
         string memory _Location,
         int8 _ImportingTemparature) public isValidPerformer(_SerialNumber,"Pharmacy",_PharmacyUserName,true) returns(bool){
+              DrugDetails = BatchDrugDetails[_SerialNumber];
                bool good =  isBad(_SerialNumber,_ImportingTemparature);
-         require(good,"This Drug Either expired or exceeded Temparature, please store it in your wharehouse for return");
-            DrugDetails = BatchDrugDetails[_SerialNumber];
-            DrugDetails.NextOwner ="DONE"; 
+         if(good){DrugDetails.NextOwner ="DONE"; 
              DrugDetails.Currentlocation = _Location;
             DrugDetails.Status = "Received";
             PharmacyDetails.PharmacyName = _PharmacyUserName;
@@ -335,59 +349,37 @@ function importToPharmacy(address _SerialNumber,
             BatchPharmacyDetails[_SerialNumber] = PharmacyDetails;
              nextOwner[_SerialNumber] = "DONE";
              BatchDrugDetails[_SerialNumber] = DrugDetails;
-            return true;
+            return true;}
+            else{
+                return false;
+            }
+            
 }
     
 
-function updateDrugDetails(string memory ThisUser,
-    address _SerialNumber,
-        uint32 _DrugID,
-        uint32 _BatchID,
-        string memory _DrugName,
-        string memory _Currentlocation,
-        string memory _CurrentproductOwner,
-        string memory _NextOwner,
-        int8  _CurrentTemperature,
-        int8 _IdealTemperature,
-        string memory _Status,
-        bool _IsBad
-)public onlyManufacturer(ThisUser)  returns(bool){
-Drug storage tmpData = BatchDrugDetails[_SerialNumber];
-tmpData.DrugID =  _DrugID;
-tmpData.BatchID = _BatchID;
-tmpData.DrugName = _DrugName;
-tmpData.Currentlocation = _Currentlocation;
-tmpData.CurrentproductOwner = _CurrentproductOwner;
-tmpData.NextOwner = _NextOwner;
-tmpData.CurrentTemperature = _CurrentTemperature;
-tmpData.IdealTemperature = _IdealTemperature;
-tmpData.Status = _Status;
-tmpData.IsBad = _IsBad;
-return true;
+function userKeys() external view returns(string[] memory){
+    return UserNameList;
 }
+ 
 
-function getUserDetails(string memory _Username,string memory ThisUser) ValidUser(ThisUser)external view returns(User memory){
-    return BatchUserDetails[_Username];
-}
+// function getDrugDetails(address  _SerialNumber,string memory ThisUser) ValidUser(ThisUser) external view returns(Drug memory){
+//     return BatchDrugDetails[_SerialNumber];
+// }
 
-function getDrugDetails(address  _SerialNumber,string memory ThisUser) ValidUser(ThisUser) external view returns(Drug memory){
-    return BatchDrugDetails[_SerialNumber];
-}
+// function getManufacturerDetails(address  _SerialNumber,string memory ThisUser) ValidUser(ThisUser) external view returns(Manufacturer memory){
+// return BatchManufactureringDetails[_SerialNumber];
+// }
+// function getDistributorDetails(address  _SerialNumber,string memory ThisUser) ValidUser(ThisUser) external view returns(distributor memory){
+// return BatchdistributorDetails[_SerialNumber];
+// }
 
-function getManufacturerDetails(address  _SerialNumber,string memory ThisUser) ValidUser(ThisUser) external view returns(Manufacturer memory){
-return BatchManufactureringDetails[_SerialNumber];
-}
-function getDistributorDetails(address  _SerialNumber,string memory ThisUser) ValidUser(ThisUser) external view returns(distributor memory){
-return BatchdistributorDetails[_SerialNumber];
-}
+// function getWholesalerDetails(address  _SerialNumber,string memory ThisUser) ValidUser(ThisUser) external view returns(Wholesaler memory){
+// return BatchWholesalerDetails[_SerialNumber];
+// }
 
-function getWholesalerDetails(address  _SerialNumber,string memory ThisUser) ValidUser(ThisUser) external view returns(Wholesaler memory){
-return BatchWholesalerDetails[_SerialNumber];
-}
-
-function getPharmaDetails(address  _SerialNumber,string memory ThisUser) ValidUser(ThisUser) external view returns(Pharmacy memory){
-return BatchPharmacyDetails[_SerialNumber];
-}
+// function getPharmaDetails(address  _SerialNumber,string memory ThisUser) ValidUser(ThisUser) external view returns(Pharmacy memory){
+// return BatchPharmacyDetails[_SerialNumber];
+// }
 
 
 
@@ -400,19 +392,19 @@ return BatchPharmacyDetails[_SerialNumber];
 
 // function getDrugDetails2(address _SerialNumber) public view returns(string memory,string memory,uint,uint,int8,int8,string memory,bool){
 // Drug memory tmpData = BatchDrugDetails[_SerialNumber];
-// return (tmpData.CurrentproductOwner,tmpData.NextOwner,tmpData.MfgTimeStamp,tmpData.ExpTimeStamp,tmpData.CurrentTemperature,tmpData.IdealTemperature,tmpData.Status,tmpData.IsBad);
+// return (tmpData.CurrentproductOwner,tmpData.NextOwner,tmpData.MfgTimeStamp,tmpData.ExpTimeStamp,tmpData.CurrentTemperature,tmpData.MaxTemperature,tmpData.Status,tmpData.IsBad);
 // }
 
    
 function isBad(address _SerialNumber,int8 Temparature) internal returns(bool){
     require(!BatchDrugDetails[_SerialNumber].IsBad);
-  DrugDetails = BatchDrugDetails[_SerialNumber];
-  DrugDetails.CurrentTemperature = Temparature;
+  
+   DrugDetails.CurrentTemperature = Temparature;
      
 
-    if(Temparature > DrugDetails.IdealTemperature){
+    if(Temparature > DrugDetails.MaxTemperature){
         DrugDetails.IsBad = true;
-        DrugDetails.Status = "Exceeded ideal temperature";
+        DrugDetails.Status = "Exceeded Max temperature";
            BatchDrugDetails[_SerialNumber] = DrugDetails;
 
         return false;
@@ -426,25 +418,20 @@ function isBad(address _SerialNumber,int8 Temparature) internal returns(bool){
     return true;
      }
 
+     
+
        function Authenticate(string memory _username,string memory _password) public view returns(bool){
-       User memory user = BatchUserDetails[_username];
-      if((keccak256(abi.encodePacked(user.UserName))== keccak256(abi.encodePacked(_username)))){
-              if(keccak256(abi.encodePacked(user.Password))== keccak256(abi.encodePacked(_password))){
+           string memory password = passwords[_username];
+              if(keccak256(abi.encodePacked(password))== keccak256(abi.encodePacked(_password))){
                   return true;
               }
-       return false;
-      }
       return false; 
    }
- function changeAdmin(address newAdmin,string memory _UserName, string memory ThisUser) public onlyAdmin(ThisUser){
-  User storage user =    BatchUserDetails[_UserName];
-  user.Role = "Admin";
-AdminAddress = newAdmin;
-delete BatchUserDetails[ThisUser];
-    }
-
-
-
+ function changeAdmin(address NewWallet,string memory _NewAdminName, string memory _Admin) public onlyAdmin(_Admin){
+  userRole[_NewAdminName]="Admin";
+  userRole[_Admin]="";
+AdminAddress = NewWallet;
+ }
     modifier isValidPerformer(address _SerialNumber, string memory role,string memory _UserName,bool receiving) {
         require(keccak256(abi.encodePacked(userRole[_UserName])) == keccak256(abi.encodePacked(role)));
         if(receiving){
@@ -473,6 +460,7 @@ _;
 }
 
 }
+
 
 
 

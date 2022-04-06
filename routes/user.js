@@ -12,7 +12,7 @@ var networkId;
 router.use(bodyParser.urlencoded({extended:false}));
 router.use(bodyParser.json());
 
-const contractAddress = "0x1D5C7a92469dfd29d7ECEa7a525C620E895576Ed";//0x1D5C7a92469dfd29d7ECEa7a525C620E895576Ed
+const contractAddress = "0x2275d9933c1D1BB72e6cA05E7766De55dA242147";//0x1D5C7a92469dfd29d7ECEa7a525C620E895576Ed
 const infuraURL = "https://rinkeby.infura.io/v3/8b5a5775abdb479d862df16b39f7354f";
 // const privateKey = "f60e1e89d1b1b24c3569229f576548860364ed53f73d2baea670170fdfe5b3ab"
 const privateKey = Buffer.from(
@@ -167,7 +167,7 @@ router.get('/InitialSetup', async (req, res) => {
  *        description: Method Not Allowed
  */
  router.get('/getUserList', async (req,res)=>{
-    const result = await contract.methods.useKeys().call();
+    const result = await contract.methods.userKeys().call();
     res.send(result);
  });
 
@@ -199,7 +199,8 @@ router.get('/InitialSetup', async (req, res) => {
  *        description: Method Not Allowed
  */
   router.get('/getDrugDetails/:SerialNumber', async (req,res)=>{
-    const result = await contract.methods.BatchDrugDetails(req.params.UserName).call();
+      console.log(req.params.SerialNumber);
+    const result = await contract.methods.BatchDrugDetails(req.params.SerialNumber).call();
     res.send(result);
  });
 
@@ -417,7 +418,7 @@ router.get('/InitialSetup', async (req, res) => {
  * @swagger
  * /api/AddUser:
  *  post:
- *    summary: adding drug Details
+ *    summary: adding User Details
  *    tags:
  *      - Setters
  *    requestBody:
@@ -430,7 +431,7 @@ router.get('/InitialSetup', async (req, res) => {
  *                  {
  *                  "CurrentUser":"Admin",
  *                  "Name":"Teja",
- *                  Phone:1234,
+ *                  "Phone":1234,
  *                  "UserName":"Teja",
  *                  "Password":"Teja",
  *                  "Email":"Teja@mindtree.com",
@@ -499,8 +500,7 @@ router.post('/AddUser', async (req, res) => {
  *                  "Mfg":1649097200,
  *                  "Exp":1649097200,
  *                  "CurrentTemp":5,
- *                  "IdealTemp":10,
- *                  "SerialNumber":"0x0000000000000000000000000000000000000000"
+ *                  "MaxTemp":10
  *                  }
  * 
  * 
@@ -517,6 +517,7 @@ router.post('/AddUser', async (req, res) => {
  router.post('/AddDrug', async (req, res) => {
     const params = req.body;
    const web3js = web3;
+   try{
    web3js.eth.getTransactionCount(myAddress).then(function(v){
     
        console.log("Count: "+v);
@@ -528,7 +529,7 @@ router.post('/AddUser', async (req, res) => {
             "gasPrice":web3js.utils.toHex(25* 1e9),
             "gasLimit":web3js.utils.toHex(4481130),
             "to":contractAddress,"value":"0x0",
-            "data":contract.methods.addDrugDetails(params.CurrentUser,params.DrugID,params.BatchID,params.DrugName,params.Location,params.Mfg,params.Exp,params.CurrentTemp,params.IdealTemp,params.SerailNumber).encodeABI(),
+            "data":contract.methods.addDrugDetails(params.CurrentUser,params.DrugID,params.BatchID,params.DrugName,params.Location,params.Mfg,params.Exp,params.CurrentTemp,params.MaxTemp,"0x0000000000000000000000000000000000000000").encodeABI(),
             "nonce":web3js.utils.toHex(count)}
        console.log(rawTransaction);
        //creating tranaction via ethereumjs-tx
@@ -536,10 +537,16 @@ router.post('/AddUser', async (req, res) => {
        //signing transaction with private key
        transaction.sign(privateKey);
        //sending transacton via web3js module
-       web3js.eth.sendSignedTransaction('0x'+transaction.serialize().toString('hex'))
-       .on('transactionHash',console.log);
+      
+        web3js.eth.sendSignedTransaction('0x'+transaction.serialize().toString('hex'))
+        .on('transactionHash',console.log);
+        
    })
    res.send("Check hash returned in terminal on https://rinkeby.etherscan.io/")
+}
+catch(err){
+    console.log(err)
+}
 });
 
 
@@ -565,7 +572,7 @@ router.post('/AddUser', async (req, res) => {
  *                  "Mfg":1649097200,
  *                  "Exp":1649097200,
  *                  "CurrentTemp":5,
- *                  "IdealTemp":10,
+ *                  "MaxTemp":10,
  *                  "SerialNumber":"0x06C4251B8dd763Ed3bC2A3156311bBE7A7f7A2Fa"
  *                  }
  *    tags:
@@ -583,6 +590,7 @@ router.post('/AddUser', async (req, res) => {
  router.post('/UpdateDrug', async (req, res) => {
      const params = req.body;
    const web3js = web3;
+   try{
    web3js.eth.getTransactionCount(myAddress).then(function(v){
        console.log("Count: "+v);
        count = v;
@@ -593,7 +601,7 @@ router.post('/AddUser', async (req, res) => {
             "gasPrice":web3js.utils.toHex(25* 1e9),
             "gasLimit":web3js.utils.toHex(4481130),
             "to":contractAddress,"value":"0x0",
-            "data":contract.methods.addDrugDetails(params.CurrentUser,params.DrugID,params.BatchID,params.DrugName,params.Location,params.Mfg,params.Exp,params.CurrentTemp,params.IdealTemp,params.SerailNumber).encodeABI(),
+            "data":contract.methods.addDrugDetails(params.CurrentUser,params.DrugID,params.BatchID,params.DrugName,params.Location,params.Mfg,params.Exp,params.CurrentTemp,params.MaxTemp,params.SerialNumber).encodeABI(),
             "nonce":web3js.utils.toHex(count)}
        console.log(rawTransaction);
        //creating tranaction via ethereumjs-tx
@@ -605,6 +613,10 @@ router.post('/AddUser', async (req, res) => {
        .on('transactionHash',console.log);
    })
    res.send("Check hash returned in terminal on https://rinkeby.etherscan.io/")
+}
+catch(err){
+    console.log(err)
+}
 });
 
 
@@ -644,7 +656,9 @@ router.post('/AddUser', async (req, res) => {
  */
  router.post('/ManufacturerShipping', async (req, res) => {
     const params = req.body;
+    console.log(params);
    const web3js = web3;
+   try{
    web3js.eth.getTransactionCount(myAddress).then(function(v){
        console.log("Count: "+v);
        count = v;
@@ -655,7 +669,7 @@ router.post('/AddUser', async (req, res) => {
             "gasPrice":web3js.utils.toHex(25* 1e9),
             "gasLimit":web3js.utils.toHex(4481130),
             "to":contractAddress,"value":"0x0",
-            "data":contract.methods.moveFromManufacturer(params.SerailNumber,params.CurrentUser,params.Location,params.DistributorUserName,params.ExportTemp).encodeABI(),
+            "data":contract.methods.moveFromManufacturer(params.SerialNumber,params.CurrentUser,params.Location,params.DistributorUserName,params.ExportTemp).encodeABI(),
             "nonce":web3js.utils.toHex(count)}
        console.log(rawTransaction);
        //creating tranaction via ethereumjs-tx
@@ -667,6 +681,11 @@ router.post('/AddUser', async (req, res) => {
        .on('transactionHash',console.log);
    })
    res.send("Check hash returned in terminal on https://rinkeby.etherscan.io/")
+
+   }
+   catch(err){
+    console.log(err)
+}
 });
 
 
@@ -709,6 +728,7 @@ router.post('/AddUser', async (req, res) => {
  router.post('/DistributorReceiving', async (req, res) => {
     const params = req.body;
    const web3js = web3;
+   try{
    web3js.eth.getTransactionCount(myAddress).then(function(v){
        console.log("Count: "+v);
        count = v;
@@ -719,7 +739,7 @@ router.post('/AddUser', async (req, res) => {
             "gasPrice":web3js.utils.toHex(25* 1e9),
             "gasLimit":web3js.utils.toHex(4481130),
             "to":contractAddress,"value":"0x0",
-            "data":contract.methods.distributorReceving(params.SerailNumber,params.CurrentUser,params.Location,params.ImportTemp).encodeABI(),
+            "data":contract.methods.distributorReceving(params.SerialNumber,params.CurrentUser,params.Location,params.ImportTemp).encodeABI(),
             "nonce":web3js.utils.toHex(count)}
        console.log(rawTransaction);
        //creating tranaction via ethereumjs-tx
@@ -731,6 +751,10 @@ router.post('/AddUser', async (req, res) => {
        .on('transactionHash',console.log);
    })
    res.send("Check hash returned in terminal on https://rinkeby.etherscan.io/")
+}
+catch(err){
+    console.log(err)
+}
 });
 
 
@@ -767,6 +791,7 @@ router.post('/AddUser', async (req, res) => {
  router.post('/DistributorShipping', async (req, res) => {
     const params = req.body;
    const web3js = web3;
+   try{
    web3js.eth.getTransactionCount(myAddress).then(function(v){
        console.log("Count: "+v);
        count = v;
@@ -777,7 +802,7 @@ router.post('/AddUser', async (req, res) => {
             "gasPrice":web3js.utils.toHex(25* 1e9),
             "gasLimit":web3js.utils.toHex(4481130),
             "to":contractAddress,"value":"0x0",
-            "data":contract.methods.moveFromDistributor(params.CurrentUser,params.SerailNumber,params.ExportTemp,params.WholesalerUserName).encodeABI(),
+            "data":contract.methods.moveFromDistributor(params.CurrentUser,params.SerialNumber,params.ExportTemp,params.WholesalerUserName).encodeABI(),
             "nonce":web3js.utils.toHex(count)}
        console.log(rawTransaction);
        //creating tranaction via ethereumjs-tx
@@ -789,6 +814,10 @@ router.post('/AddUser', async (req, res) => {
        .on('transactionHash',console.log);
    })
    res.send("Check hash returned in terminal on https://rinkeby.etherscan.io/")
+}
+catch(err){
+    console.log(err)
+}
 });
 
 
@@ -825,6 +854,7 @@ router.post('/AddUser', async (req, res) => {
  router.post('/WholesalerReceiving', async (req, res) => {
     const params = req.body;
    const web3js = web3;
+   try{
    web3js.eth.getTransactionCount(myAddress).then(function(v){
        console.log("Count: "+v);
        count = v;
@@ -835,7 +865,7 @@ router.post('/AddUser', async (req, res) => {
             "gasPrice":web3js.utils.toHex(25* 1e9),
             "gasLimit":web3js.utils.toHex(4481130),
             "to":contractAddress,"value":"0x0",
-            "data":contract.methods.wholesalerReceving(params.SerailNumber,params.CurrentUser,params.Location,params.ImportTemp).encodeABI(),
+            "data":contract.methods.wholesalerReceving(params.SerialNumber,params.CurrentUser,params.Location,params.ImportTemp).encodeABI(),
             "nonce":web3js.utils.toHex(count)}
        console.log(rawTransaction);
        //creating tranaction via ethereumjs-tx
@@ -847,6 +877,9 @@ router.post('/AddUser', async (req, res) => {
        .on('transactionHash',console.log);
    })
    res.send("Check hash returned in terminal on https://rinkeby.etherscan.io/")
+}  catch(err){
+    console.log(err)
+}
 });
 
 
@@ -884,6 +917,7 @@ router.post('/AddUser', async (req, res) => {
  router.post('/WholesalerrShipping', async (req, res) => {
     const params = req.body;
    const web3js = web3;
+   try{
    web3js.eth.getTransactionCount(myAddress).then(function(v){
        console.log("Count: "+v);
        count = v;
@@ -894,7 +928,7 @@ router.post('/AddUser', async (req, res) => {
             "gasPrice":web3js.utils.toHex(25* 1e9),
             "gasLimit":web3js.utils.toHex(4481130),
             "to":contractAddress,"value":"0x0",
-            "data":contract.methods.moveFromWholeSaler(params.CurrentUser,params.SerailNumber,params.ExportTemp,params.PharmacyUserName).encodeABI(),
+            "data":contract.methods.moveFromWholeSaler(params.CurrentUser,params.SerialNumber,params.ExportTemp,params.PharmacyUserName).encodeABI(),
             "nonce":web3js.utils.toHex(count)}
        console.log(rawTransaction);
        //creating tranaction via ethereumjs-tx
@@ -906,6 +940,10 @@ router.post('/AddUser', async (req, res) => {
        .on('transactionHash',console.log);
    })
    res.send("Check hash returned in terminal on https://rinkeby.etherscan.io/")
+}
+catch(err){
+    console.log(err)
+}
 });
 
 /**
@@ -941,6 +979,7 @@ router.post('/AddUser', async (req, res) => {
  router.post('/PharmacyReceiving', async (req, res) => {
     const params = req.body;
    const web3js = web3;
+   try{
    web3js.eth.getTransactionCount(myAddress).then(function(v){
        console.log("Count: "+v);
        count = v;
@@ -951,7 +990,7 @@ router.post('/AddUser', async (req, res) => {
             "gasPrice":web3js.utils.toHex(25* 1e9),
             "gasLimit":web3js.utils.toHex(4481130),
             "to":contractAddress,"value":"0x0",
-            "data":contract.methods.importToPharmacy(params.SerailNumber,params.CurrentUser,params.Location,params.ImportTemp).encodeABI(),
+            "data":contract.methods.importToPharmacy(params.SerialNumber,params.CurrentUser,params.Location,params.ImportTemp).encodeABI(),
             "nonce":web3js.utils.toHex(count)}
        console.log(rawTransaction);
        //creating tranaction via ethereumjs-tx
@@ -963,6 +1002,10 @@ router.post('/AddUser', async (req, res) => {
        .on('transactionHash',console.log);
    })
    res.send("Check hash returned in terminal on https://rinkeby.etherscan.io/")
+}
+catch(err){
+    console.log(err)
+}
 });
 
 
@@ -999,6 +1042,7 @@ router.post('/AddUser', async (req, res) => {
  router.post('/ChangeAdmin', async (req, res) => {
     const params = req.body;
    const web3js = web3;
+   try{
    web3js.eth.getTransactionCount(myAddress).then(function(v){
        console.log("Count: "+v);
        count = v;
@@ -1006,8 +1050,8 @@ router.post('/AddUser', async (req, res) => {
        //creating raw tranaction
        var rawTransaction = {
            "from":myAddress,
-            "gasPrice":web3js.utils.toHex(25* 1e9),
-            "gasLimit":web3js.utils.toHex(4481130),
+            "gasPrice":web3js.utils.toHex(25* 1e9),//1 ether = 10^18 wei  10
+            "gasLimit":web3js.utils.toHex(4481130),//10
             "to":contractAddress,"value":"0x0",
             "data":contract.methods.changeAdmin(params.WalletAddress,params.newAdmin,params.Admin).encodeABI(),
             "nonce":web3js.utils.toHex(count)}
@@ -1021,6 +1065,9 @@ router.post('/AddUser', async (req, res) => {
        .on('transactionHash',console.log);
    })
    res.send("Check hash returned in terminal on https://rinkeby.etherscan.io/")
+}  catch(err){
+    console.log(err)
+}
 });
 
 

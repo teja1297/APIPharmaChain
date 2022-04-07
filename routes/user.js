@@ -289,7 +289,7 @@ router.get('/InitialSetup', async (req, res) => {
  *        description: Method Not Allowed
  */
  router.get('/ManufacturerDetails/:SerialNumber', async (req,res)=>{
-   const result = await contract.methods.BatchManufactureringDetails(req.params.SerailNumber).call();
+   const result = await contract.methods.BatchManufactureringDetails(req.params.SerialNumber).call();
    res.send(result);
 });
 
@@ -319,7 +319,7 @@ router.get('/InitialSetup', async (req, res) => {
  *        description: Method Not Allowed
  */
  router.get('/DistributorDetails/:SerialNumber', async (req,res)=>{
-    const result = await contract.methods.BatchdistributorDetails(req.params.SerailNumber).call();
+    const result = await contract.methods.BatchdistributorDetails(req.params.SerialNumber).call();
     res.send(result);
  });
 
@@ -327,7 +327,7 @@ router.get('/InitialSetup', async (req, res) => {
 
 /**
  * @swagger
- * /api/WholesalerDetails/{SerailNumber}:
+ * /api/WholesalerDetails/{SerialNumber}:
  *  get:
  *    summary: WholeSaler Details
  *    parameters:
@@ -349,14 +349,14 @@ router.get('/InitialSetup', async (req, res) => {
  *        description: Method Not Allowed
  */
  router.get('/WholesalerDetails/:SerialNumber', async (req,res)=>{
-   const result = await contract.methods.BatchWholesalerDetails(req.params.SerailNumber).call();
+   const result = await contract.methods.BatchWholesalerDetails(req.params.SerialNumber).call();
    res.send(result);
 });
 
 
 /**
  * @swagger
- * /api/PharmacyDetails/{serailNumber}:
+ * /api/PharmacyDetails/{SerialNumber}:
  *  get:
  *    summary: Pharmacy Details
  *    parameters:
@@ -377,8 +377,8 @@ router.get('/InitialSetup', async (req, res) => {
  *      403:
  *        description: Method Not Allowed
  */
- router.get('/PharmacyDetails/:SerailNumber', async (req,res)=>{
-   const result = await contract.methods.BatchPharmacyDetails(req.params.SerailNumber).call();
+ router.get('/PharmacyDetails/:SerialNumber', async (req,res)=>{
+   const result = await contract.methods.BatchPharmacyDetails(req.params.SerialNumber).call();
    res.send(result);
 });
 

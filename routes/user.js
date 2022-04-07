@@ -12,7 +12,7 @@ var networkId;
 router.use(bodyParser.urlencoded({extended:false}));
 router.use(bodyParser.json());
 
-const contractAddress = "0x2275d9933c1D1BB72e6cA05E7766De55dA242147";//0x1D5C7a92469dfd29d7ECEa7a525C620E895576Ed
+const contractAddress = "0xB30c1B9a9a12608107A0798555781bFC88aeD352";//0x1D5C7a92469dfd29d7ECEa7a525C620E895576Ed
 const infuraURL = "https://rinkeby.infura.io/v3/8b5a5775abdb479d862df16b39f7354f";
 // const privateKey = "f60e1e89d1b1b24c3569229f576548860364ed53f73d2baea670170fdfe5b3ab"
 const privateKey = Buffer.from(
@@ -492,7 +492,7 @@ router.post('/AddUser', async (req, res) => {
  *              type: object
  *              example:
  *                  {
- *                  "CurrentUser":"Sunu",
+ *                  "CurrentUser":"Teja",
  *                  "DrugID":1,
  *                  "BatchID":2,
  *                  "DrugName":"Paracetmol",

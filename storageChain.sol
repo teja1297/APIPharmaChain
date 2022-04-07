@@ -213,7 +213,7 @@ address public AdminAddress;
          BatchDrugDetails[_SerialNumber] = DrugDetails;
           nextOwner[_SerialNumber] = _DistributorUserName;
          return true;}
-         else{return false;}
+         return false;
           
                    
                     
@@ -231,7 +231,7 @@ address public AdminAddress;
                                      public isValidPerformer(_SerialNumber,"Distributor",_DistributorUserName,true) returns(bool){
               DrugDetails = BatchDrugDetails[_SerialNumber];                            
             bool good =  isBad(_SerialNumber,_ImportingTemparature);
-           if(good){}
+           if(good){
            
             DistributorDetails.DistributorUserName = _DistributorUserName;
             DistributorDetails.Location = _Location;
@@ -245,7 +245,10 @@ address public AdminAddress;
             DrugDetails.Currentlocation = _Location;
              DrugDetails.Status = "Received"; 
              BatchDrugDetails[_SerialNumber] = DrugDetails;
-             return true;    
+             return true;  }
+         
+                 return false;
+             
         }
 
 
@@ -259,7 +262,7 @@ address public AdminAddress;
                                  string memory _ExporterUserName) public isValidPerformer(_SerialNumber,"Distributor",ThisUser,false) returns(bool){
               DrugDetails = BatchDrugDetails[_SerialNumber];  
            bool good =  isBad(_SerialNumber,_ExportingTemparature);
-        if(good){}
+        if(good){
 
               
                      DrugDetails.Status = "Shipped";  
@@ -271,6 +274,8 @@ address public AdminAddress;
              nextOwner[_SerialNumber] = _ExporterUserName; 
              BatchDrugDetails[_SerialNumber] = DrugDetails;
             return true; 
+        }
+        return false;
         }
 
 
@@ -299,9 +304,9 @@ WholesalerDetails.WholeSalerUserName = _WholeSalerUserName;
              BatchDrugDetails[_SerialNumber] = DrugDetails;
              return true;   
            }
-           else{
+          
                return false;
-           }
+           
             
              
         }
@@ -326,7 +331,7 @@ WholesalerDetails.WholeSalerUserName = _WholeSalerUserName;
              BatchDrugDetails[_SerialNumber] = DrugDetails;
             return true; 
             }
-            else{return false;}
+            return false;
 
                   
         }
@@ -350,9 +355,9 @@ function importToPharmacy(address _SerialNumber,
              nextOwner[_SerialNumber] = "DONE";
              BatchDrugDetails[_SerialNumber] = DrugDetails;
             return true;}
-            else{
+
                 return false;
-            }
+            
             
 }
     
@@ -460,7 +465,6 @@ _;
 }
 
 }
-
 
 
 

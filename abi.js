@@ -1,6 +1,6 @@
 
 // 0x0000000000000000000000000000000000000000
-const contractAddress = 0x2275d9933c1D1BB72e6cA05E7766De55dA242147;
+const contractAddress = 0x40bc3B60c7F885A68A5fCdEa83889B25470e13a4;
 const abi =[
 	{
 		"inputs": [
@@ -300,6 +300,11 @@ const abi =[
 				"internalType": "string",
 				"name": "_Role",
 				"type": "string"
+			},
+			{
+				"internalType": "bool",
+				"name": "isUpdating",
+				"type": "bool"
 			}
 		],
 		"name": "setUser",

@@ -131,8 +131,11 @@ address public AdminAddress;
                      string memory _UserName,
                      string memory _UserPassword,
                      string memory _Email,
-                     string memory _Role) public onlyAdmin(ThisUser) returns(bool){
-                         require(!isAutherised[_UserName],"username already taken");
+                     string memory _Role,
+                     bool isUpdating) public onlyAdmin(ThisUser) returns(bool){
+                         if(!isUpdating){
+                                require(!isAutherised[_UserName],"username already taken");
+                         }      
         /*store data into struct*/
         UserDetail.Name =_Name;
         UserDetail.ContactNo = _ContactNo;
@@ -143,10 +146,11 @@ address public AdminAddress;
         /*store data into mapping*/
         BatchUserDetails[_UserName] = UserDetail;
         userRole[_UserName] = _Role;
-        UserNameList.push(_UserName);
+        if(!isUpdating){
+            UserNameList.push(_UserName);
          passwords[_UserName]= _UserPassword;
         isAutherised[_UserName]= true;
-
+        } 
         return true;
     }  
 
@@ -163,8 +167,8 @@ address public AdminAddress;
         uint _ExpTimeStamp,
         int8  _CurrentTemperature,
         int8 _MaxTemperature,
-        address _SerialNumber
-     ) public onlyManufacturer(ThisUser) returns(address){
+        address _SerialNumber)
+         public onlyManufacturer(ThisUser) returns(address){
          if(_SerialNumber == address(0)){
          require(_CurrentTemperature<=_MaxTemperature);
          uint tmpData = uint(keccak256(abi.encodePacked(_MfgTimeStamp, block.timestamp )));
@@ -182,6 +186,7 @@ address public AdminAddress;
         DrugDetails.CurrentTemperature = _CurrentTemperature;
         DrugDetails.MaxTemperature = _MaxTemperature;
         DrugDetails.Status = "Manufactured";
+        DrugDetails.IsBad = false;
         DrugDetails.NextOwner = "";
         nextOwner[_SerialNumber] = "";
         BatchDrugDetails[_SerialNumber] = DrugDetails;
@@ -345,6 +350,7 @@ function importToPharmacy(address _SerialNumber,
                bool good =  isBad(_SerialNumber,_ImportingTemparature);
          if(good){DrugDetails.NextOwner ="DONE"; 
              DrugDetails.Currentlocation = _Location;
+             DrugDetails.CurrentproductOwner = _PharmacyUserName;
             DrugDetails.Status = "Received";
             PharmacyDetails.PharmacyName = _PharmacyUserName;
             PharmacyDetails.Location = _Location;
@@ -352,7 +358,7 @@ function importToPharmacy(address _SerialNumber,
             PharmacyDetails.DrugStatus = "Received";
             PharmacyDetails.ImportingDateTime = block.timestamp;
             BatchPharmacyDetails[_SerialNumber] = PharmacyDetails;
-             nextOwner[_SerialNumber] = "DONE";
+             nextOwner[_SerialNumber] = "";
              BatchDrugDetails[_SerialNumber] = DrugDetails;
             return true;}
 
@@ -463,14 +469,10 @@ modifier ValidUser(string memory _UserName){
 require(isAutherised[_UserName]);
 _;
 }
-
 }
-//
 
 
-
-
-
+//0xE3af9305b2b7F7DF04146AD19dC3F96ade9d46E8
 
 
 
